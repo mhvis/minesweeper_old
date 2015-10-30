@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1" />
+	<title>Minesweeper</title>
+	<link rel="stylesheet" href="css/stylesheet.css" />
+</head>
+<body>
+	<div id="wrapper">
+		<div id="canvaswrapper">
+			<canvas id="controls"></canvas>
+			<canvas id="canvas">
+				Enable javascript or update browser to play!
+			</canvas>
+			<canvas id="cursor"></canvas>
+		</div>
+
+		<div id="buttons">
+			<button onclick="changeWidth(8);">Easy</button><!--
+			--><button onclick="changeWidth(16);">Medium</button><!--
+			--><button onclick="changeWidth(32);">Hard</button>
+		</div>
+
+		<div id="custom">
+			<input id="customsize" type="number" value="4" step="1" min="4" max="100" /><!--
+			--><button onclick="changeWidth(document.getElementById('customsize').value);">Custom size</button>
+		</div>
+	</div>
+
+	<script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io.connect();
+        function uploadBoard() {
+        	socket.emit('board', {
+        		boardWidth: boardWidth,
+        		boardHeight: boardHeight,
+        		board: board,
+        		stopGame: stopGame,
+        		time: time,
+        		mineCount: mineCount,
+        		smiley: smiley
+        	});
+        }
+    </script>
+	<script src="js/script.js"></script>
+	<script>
+        socket.on('board', function(data) {
+        	if (data == null) return;
+        	boardWidth = data.boardWidth;
+			boardHeight = data.boardHeight;
+			board = data.board;
+			stopGame = data.stopGame;
+			time = data.time;
+			mineCount = data.mineCount;
+			smiley = data.smiley;
+			drawControls();
+			drawTiles();
+        });
+        socket.on('cursor', function(cursor) {
+        	drawCursor(cursor);
+        });
+    </script>
+</body>
+</html>
