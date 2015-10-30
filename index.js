@@ -3,7 +3,7 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
-server.listen(process.env.OPENSHIFT_NODEJS_PORT);
+server.listen(8080);
 
 app.use(express.static('public'));
 
