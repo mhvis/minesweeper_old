@@ -14,19 +14,57 @@ server.listen(server_port, server_ip_address, function () {
 
 app.use(express.static('public'));
 
-//var board = require('board');
+var BoardController = require('boardcontroller.js');
+var boards = {};
+var boardNextId = 0;
+var boardIo = io.of('/board');
 
-var board;
+boardIo.on('connection', function (socket) {
 
-io.on('connection', function (socket) {
-  socket.emit('board', board);
-
-  socket.on('board', function (data) {
-    board = data;
-    socket.broadcast.emit('board', board);
+  socket.on('get', function (id) {
+    if (boards.hasOwnProperty(id)) {
+      socket.emit('board', {
+        id: id,
+        board: boards[id].get()
+      });
+      socket.join(id);
+    }
   });
 
-  socket.on('cursor', function (data) {
-    socket.broadcast.emit('cursor', data);
+  socket.on('getAll', function () {
+    for (var id in boards) {
+      if (boards.hasOwnProperty(id)) {
+        socket.emit('board', {
+          id: id,
+          board: boards[id].get()
+        });
+        socket.join(id);
+      }
+    }
+  });
+
+  socket.on('unsubscribe', function (id) {
+    socket.leave(id);
+  });
+
+  socket.on('update', function (update) {
+    if (boards.hasOwnProperty(update.id)) {
+      boards[update.id].update(update.change);
+    }
+  });
+
+  socket.on('add', function (data) {
+    var mineCount = data.width * data.height * 0.10;
+    var boardId = boardNextId++;
+    var board = new BoardController(data.width, data.height, mineCount,
+      function (change) {
+        boardIo.to(boardId).emit('update', {
+          id: boardId,
+          change: change
+        });
+      }
+    );
+    boards[boardId] = board;
+    socket.emit('added', boardId);
   });
 });
