@@ -56,10 +56,14 @@ boardIo.on('connection', function (socket) {
   socket.on('get', function (id) {
     var boardArray = {};
     
-    socket.rooms.forEach(function (room) { // Leave from all current rooms.
+    // Leave from all current rooms, TODO!
+    /*
+    var rooms = io.sockets.manager.roomClients[socket.id];
+    for (var room in rooms) {
       socket.leave(room);
-    });
-    
+    }
+    */
+
     if (id === '*') {
       for (var id in boards) {
         if (boards.hasOwnProperty(id)) {
