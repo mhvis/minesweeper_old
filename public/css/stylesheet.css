@@ -1,71 +1,9 @@
-* {
-	box-sizing: border-box;
-}
-html, body {
-	margin: 0;
-	padding: 0;
-	overflow-x: hidden;
-}
-body {
-	-webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-#wrapper {
-	display: table;
-	margin: 1em auto;
-}
-#wrapper>#canvaswrapper {
-	position: relative;
-	display: table-row;
+#boards {
 	width: 100%;
-}
-#wrapper>#canvaswrapper>canvas {
-	display: table-cell;
-}
-#wrapper>#canvaswrapper>#controls {
-	background-color: #AAA;
-}
-#wrapper>#buttons {
-	width: 100%;
-	margin-top: 1em;
-}
-#wrapper>#buttons>button {
-	display: table-cell;
-	width: calc(100%/3);
-	font: 24px monospace;
-}
-#wrapper button {
-	border: none;
-	outline: none;
-	background-color: #CCC;
-	padding: 1em 0;
-}
-#wrapper button:hover {
-	background-color: #AAA;
-}
-#wrapper>#custom {
-	width: 100%;
-	margin-top: 1em;
-}
-#wrapper>#custom>input {
-	width: calc(100%/5 * 3);
-	outline: none;
-	border: none;
-	background-color: #EEE;
-	font: 18px monospace;
-	padding: 1em;
-	text-align: center;
-}
-#wrapper>#custom>button {
-	width: calc(100%/5 * 2);
-	font: 18px monospace;
+	margin-top: 2px;
 }
 
-#cursor {
-	position: absolute;
-	top: 165px;
+#boards span {
+	width: 25%;
+	margin: 2px;
 }

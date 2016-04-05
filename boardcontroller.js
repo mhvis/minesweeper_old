@@ -4,42 +4,45 @@
  * Location constructor.
  */
 function Location(board, x, y) {
-    this._board = board;
+    this.board = board;
     this.x = x;
     this.y = y;
 }
 
 /**
- * Do a callback function for each neighbour of this location.
+ * Get an array with all neighbours of this location.
  */
-Location.prototype.forEachNeighbour = function (fn) {
+Location.prototype.neighbours = function () {
     var xDir = [0, 1, 1, 1, 0, -1, -1, -1];
     var yDir = [-1, -1, 0, 1, 1, 1, 0, -1];
-    var b = this._board;
+    var neighbours = [];
+    var b = this.board;
     for (var i = 0; i < xDir.length; i++) {
         var x = this.x + xDir[i];
         var y = this.y + yDir[i];
         if (y >= 0 && y < b.length && x >= 0 && x < b[y].length) {
-            fn(new Location(b, x, y));
+            neighbours.push(new Location(b, x, y));
         }
     }
+    return neighbours;
 };
 
 /**
  * Returns the value at this location.
  */
 Location.prototype.get = function () {
-    return this._board[this.y][this.x];
+    return this.board[this.y][this.x];
 };
 
 /**
  * Updates the value at this location, optionally firing an update callback.
  */
 Location.prototype.set = function (value, fn) {
-    this._board[this.y][this.x] = value;
+    this.board[this.y][this.x] = value;
     if (typeof fn !== "undefined") {
         fn({
-            location: {x:this.x,y:this.y},
+            x: this.x,
+            y: this.y,
             value: value
         });
     }
@@ -78,11 +81,11 @@ function generateExposedBoard(width, height, mineCount) {
     }
     for (var i = locations.length - 1; i >= locations.length - mineCount; i--) {
         var rnd = Math.floor(Math.random() * (i + 1));
-        var loc = locations[i];
-        locations[i] = locations[rnd];
-        locations[rnd] = loc;
+        var loc = locations[rnd];
+        locations[rnd] = locations[i];
+        locations[i] = loc;
         loc.set('M');
-        loc.forEachNeighbour(function(neighbour) {
+        loc.neighbours().forEach(function (neighbour) {
             var value = neighbour.get();
             if (value != 'M') {
                 neighbour.set(value + 1);
@@ -95,18 +98,37 @@ function generateExposedBoard(width, height, mineCount) {
 /**
  * Exposes the tiles at given location+board, using the given exposed board.
  */
-function expose(location, exposedBoard, fn) {
-    location.set(exposedBoard[location.y][location.x], fn);
-    if (location.get() == 0) {
-        location.forEachNeighbour(function(neighbour) {
-            var val = neighbour.get();
-            var exposedVal = exposedBoard[neighbour.y][neighbour.x];
-            if (val == ' ') {
-                expose(neighbour, exposedBoard, fn);
+/*function expose(location, exposedLocation, fn) {
+    location.set(exposedLocation.get(), fn);
+    if (location.get() === 0) {
+        location.neighbours().forEach(function (neighbour) {
+            if (neighbour.get() === ' ') {
+                var neighbourExposed = new Location(exposedLocation.board,
+                    neighbour.x, neighbour.y);
+                expose(neighbour, neighbourExposed, fn);
             }
         });
     }
-}
+}/**/
+
+/**
+ * Exposes the tiles at given location+board, using the given exposed board.
+ */
+/**/function expose(location, exposedLocation, fn) {
+    var exposedBoard = exposedLocation.board;
+    var queue = [location];
+    while (queue.length > 0) {
+        var loc = queue.shift();
+        if (loc.get() !== ' ') {
+            continue;
+        }
+        var exposedLoc = new Location(exposedBoard, loc.x, loc.y);
+        loc.set(exposedLoc.get(), fn);
+        if (loc.get() === 0) {
+            queue.push.apply(queue, loc.neighbours());
+        }
+    }
+}/**/
 
 /**
  * BoardController constructor.
@@ -120,14 +142,16 @@ function BoardController(width, height, mineCount, fn) {
 
 /**
  * The change object is expected to have following format:
- * {location: {x, y}, what: ('expose'|'mark')}.
+ * {x, y, what: ('expose'|'mark')}.
  */
 BoardController.prototype.update = function (change) {
-    var loc = new Location(this._board, change.location.x, change.location.y);
+    var loc = new Location(this._board, change.x, change.y);
     switch (change.what) {
     case 'expose':
         if (loc.get() == ' ') {
-            expose(loc, this._exposedBoard, this._fn);
+            var exposedLoc = new Location(this._exposedBoard, change.x,
+                change.y);
+            expose(loc, exposedLoc, this._fn);
         }
         break;
     case 'mark':
