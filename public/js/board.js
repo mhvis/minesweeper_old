@@ -179,10 +179,11 @@ var BOARD = function () {
             /**
              * Creates a new board on the server with given width and height.
              */
-            add: function (width, height, fn) {
+            add: function (width, height, mineCount, fn) {
                 socket.emit('add', {
                     width: width,
-                    height: height
+                    height: height,
+                    mineCount: mineCount
                 });
                 socket.once('added', function (id) {
                     if (id == -1) {
@@ -216,6 +217,11 @@ var BOARD = function () {
                     fn(containers);
                 });
             },
+            
+            // Temporary
+            clear: function() {
+                socket.emit('clear');
+            }
 
         };
     }();

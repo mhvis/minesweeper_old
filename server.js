@@ -85,7 +85,7 @@ boardIo.on('connection', function (socket) {
   });
 
   /**
-   * add: {width, height}
+   * add: {width, height, [mineCount]}
    * Creates a new board with given width and height. The server response with
    * an event with the name 'added' and the board id as the value.
    */
@@ -94,7 +94,8 @@ boardIo.on('connection', function (socket) {
       socket.emit('added', -1);
       return;
     }
-    var mineCount = data.width * data.height * 0.01;
+    var mineCount = (data.mineCount) ? data.mineCount : data.width * data.height
+      * 0.1;
     var boardId = boardNextId++;
     var board = new BoardController(data.width, data.height, mineCount,
       function (change) {
@@ -103,5 +104,11 @@ boardIo.on('connection', function (socket) {
     );
     boards[boardId] = board;
     socket.emit('added', boardId);
+  });
+  
+  // Temporary
+  socket.on('clear', function() {
+    boards = {};
+    boardNextId = 0;
   });
 });
