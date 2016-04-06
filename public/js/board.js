@@ -19,8 +19,8 @@ var BOARD = function () {
             var that = this;
             this.container = document.createElement('span');
 
-            this._canvasW = 15 * board[0].length; // Resolution
-            this._canvasH = 15 * board.length;
+            this._canvasW = 50 * board[0].length; // Resolution
+            this._canvasH = 50 * board.length;
             this._boardW = board[0].length;
             this._boardH = board.length;
             this._canvas = document.createElement('canvas');
