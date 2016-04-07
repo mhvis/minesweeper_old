@@ -25,6 +25,23 @@ window.onload = function() {
             });
         });
         newGame.innerHTML = 'Creating...';
+    };
+    
+    // Presets
+    function clearNewGame(width, height, mineCount) {
+        BOARD.clear();
+        boards.innerHTML = '';
+        BOARD.add(width, height, mineCount, function(id) {
+            BOARD.get(id, function(container) {
+                boards.appendChild(container);
+            });
+        });
     }
+    document.getElementById('presetHardVertical').onclick = function(event) {
+        clearNewGame(16, 30, 99);
+    };
+    document.getElementById('presetHardHorizontal').onclick = function(event) {
+        clearNewGame(30, 16, 99);
+    };
 };
 
