@@ -4,12 +4,12 @@ var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var cookieSession = require('cookie-session');
 
-var server_port = process.env.OPENSHIFT_NODEJS_PORT || process.env.PORT || 80;
+var server_port = process.env.OPENSHIFT_NODEJS_PORT || process.env.PORT || 8080;
 var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || process.env.IP ||
   '127.0.0.1';
 
 server.listen(server_port, server_ip_address, function () {
-  console.log("Listening on " + server_ip_address + ", server_port " +
+  console.log("Listening on " + server_ip_address + ", server port " +
     server_port);
 });
 
@@ -17,8 +17,6 @@ app.use(cookieSession({
   name: 'session',
   keys: ['ankieisawesome', 'dicewaretodo']
 }));
-
-app.use(express.static('public'));
 
 app.get('/views', function (req, res, next) {
   // Update views
@@ -28,8 +26,10 @@ app.get('/views', function (req, res, next) {
   res.send(req.session.views + ' views');
 });
 
+app.use(express.static('public'));
+app.use(express.static('build/public'));
 
-var BoardController = require('./boardcontroller.js');
+var BoardController = require('./server/boardcontroller');
 var boards = {};
 var boardNextId = 0;
 var boardIo = io.of('/board');
