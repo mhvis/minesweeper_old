@@ -6,7 +6,7 @@
   "scripts": {
     "start": "npm run build && npm run server",
     "test": "mocha",
-    "server": "node server/server.js"
+    "server": "node server/server.js",
     "build": "npm run browserify",
     "watch": "npm run watchify",
     "browserify": "browserify -t [babelify] client/App.js -o public/bundle.js",
