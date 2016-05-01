@@ -4,12 +4,13 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "npm run build && npm run server",
     "test": "mocha",
+    "server": "node server.js"
     "build": "npm run browserify",
     "watch": "npm run watchify",
-    "browserify": "mkdir -p build/public && browserify -t [babelify] client/App.js -o build/public/bundle.js",
-    "watchify": "mkdir -p build/public && watchify -t [babelify] client/App.js -o build/public/bundle.js"
+    "browserify": "browserify -t [babelify] client/App.js -o public/bundle.js",
+    "watchify": "watchify -t [babelify] client/App.js -o public/bundle.js"
   },
   "author": "Maarten Visscher, Koen Schilders",
   "license": "UNLICENSED",

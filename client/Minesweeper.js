@@ -1,5 +1,11 @@
 import React from 'react';
 
+var Grid = React.createClass({
+  render: function() {
+    return ();
+  }
+});
+
 var Cell = React.createClass({
   handleClick: function(event) {
   },
@@ -12,24 +18,28 @@ var Cell = React.createClass({
   }
 });
 
-var Face
-
-var Timer
-
-var Counter
-
-var Header = React.createClass({
+var Counter = React.createClass({
   render: function() {
-    return (
-      <Counter /><Face /><Timer />
-    );
+    return ();
   }
 });
 
-var Minesweeper = React.createClass({
+var Face = React.createClass({
+  render: function() {
+    return ();
+  }
+});
+
+var Timer = React.createClass({
+  render: function() {
+    return ();
+  }
+});
+
+var Game = React.createClass({
   render: function() {
     return (
-    
+        
     );
   }
 });

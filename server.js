@@ -27,9 +27,8 @@ app.get('/views', function (req, res, next) {
 });
 
 app.use(express.static('public'));
-app.use(express.static('build/public'));
 
-var BoardController = require('./server/boardcontroller');
+var BoardController = require('./boardcontroller');
 var boards = {};
 var boardNextId = 0;
 var boardIo = io.of('/board');
