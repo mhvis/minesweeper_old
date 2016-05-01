@@ -2,11 +2,11 @@
   "name": "minesweeper",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "server/server.js",
   "scripts": {
     "start": "npm run build && npm run server",
     "test": "mocha",
-    "server": "node server.js"
+    "server": "node server/server.js"
     "build": "npm run browserify",
     "watch": "npm run watchify",
     "browserify": "browserify -t [babelify] client/App.js -o public/bundle.js",
