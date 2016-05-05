@@ -10,7 +10,8 @@
     "build": "npm run browserify",
     "watch": "npm run watchify",
     "browserify": "browserify -t [babelify] client/app.js -o public/bundle.js",
-    "watchify": "watchify -t [babelify] client/app.js -o public/bundle.js"
+    "watchify": "watchify -t [babelify] client/app.js -o public/bundle.js",
+    "build-doc": ""
   },
   "author": "Maarten Visscher, Koen Schilders",
   "license": "UNLICENSED",
