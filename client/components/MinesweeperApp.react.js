@@ -22,13 +22,16 @@ var MinesweeperApp = React.createClass({
   },
   
   render: function() {
+    var center = {textAlign: 'center'};
     return (
       <div>
         <AppBar />
-        <MinesweeperNewForm />
-        <Minesweeper grid={this.state.grid} mineCount={this.state.mineCount}
-          start={this.state.start} end={this.state.end} mines={this.state.mines}
-          />
+        <div style={center}>
+          <MinesweeperNewForm />
+          <Minesweeper grid={this.state.grid} mineCount={this.state.mineCount}
+            start={this.state.start} end={this.state.end} mines={this.state.mines}
+            />
+        </div>
       </div>
     );
   },

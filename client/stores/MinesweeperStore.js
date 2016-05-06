@@ -16,16 +16,17 @@ var game = {
 var listener = false;
 
 socket.on('game', function(newGame) {
-    console.log('Received game event');
-    console.log(newGame);
     game = newGame;
     notifyListeners();
 });
 
 socket.on('update', function(data) {
-    console.log('Received update event');
-    console.log(data);
     game.grid[data.y][data.x] = data.value;
+    notifyListeners();
+});
+socket.on('end', function(data) {
+    game.end = data.end;
+    game.mines = data.mines;
     notifyListeners();
 });
 

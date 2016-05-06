@@ -111,11 +111,16 @@ function forEachNeighbor(xCoord, yCoord, width, height, cb) {
  * @param {number} width - The width of the board.
  * @param {number} height - The height of the board.
  * @param {number} mineCount - The number of mines to randomly hide.
- * @param {updateCallback} cb - A callback that is called when the board is
- * changed.
+ * @param {updateCallback} updateCb - A callback that is called when the board
+ * is changed.
+ * @param {endCallback} endCb - A callback that is called when the game ends.
  */
-module.exports = function(width, height, mineCount, cb) {
+module.exports = function(width, height, mineCount, updateCb, endCb) {
     'use strict';
+    
+    if (mineCount > width * height) {
+        throw new Error('Mine count is larger than board size');
+    }
     
     /**
      * The current state of the board as a two-dimensional array (with unexposed
@@ -166,17 +171,17 @@ module.exports = function(width, height, mineCount, cb) {
      */
     this.mark = function(x, y) {
         if (this.grid[y][x] != ' ' && this.grid[y][x] != 'm') {
-            throw new Error("Tile is exposed.");
+            throw new Error("Tile is exposed, thus cannot be marked");
         }
         if (this.end) {
-            throw new Error("Game has ended.");
+            throw new Error("Game has ended, thus a tile cannot be marked");
         }
         if (this.grid[y][x] == ' ') {
             this.grid[y][x] = 'm';
         } else {
             this.grid[y][x] = ' ';
         }
-        cb(x, y, this.grid[y][x]); // Callback.
+        updateCb(x, y, this.grid[y][x]); // Callback.
     };
     
     /**
@@ -187,14 +192,14 @@ module.exports = function(width, height, mineCount, cb) {
      */
     this.expose = function(x, y) {
         if (this.grid[y][x] != ' ') {
-            throw new Error("Tile is already exposed.");
+            throw new Error("Tile is already exposed");
         }
         if (this.end) {
-            throw new Error("Game has ended.");
+            throw new Error("Game has ended");
         }
         this.grid[y][x] = exposedGrid[y][x];
         exposedRemaining--;
-        cb(x, y, this.grid[y][x]); // Callback.
+        updateCb(x, y, this.grid[y][x]); // Callback.
         if (this.grid[y][x] == '0') {
             var that = this;
             forEachNeighbor(x, y, width, height, function(x2, y2) {
@@ -208,6 +213,7 @@ module.exports = function(width, height, mineCount, cb) {
             // End game when a mine exploded or all tiles are exposed.
             this.end = Math.round(Date.now() / 1000);
             this.mines = mines;
+            endCb(this.end, this.mines);
         }
     };
 };
@@ -219,4 +225,12 @@ module.exports = function(width, height, mineCount, cb) {
  * @param {number} x - The x-coordinate.
  * @param {number} y - The y-coordinate.
  * @param {string} value - The new value.
+ */
+ 
+/**
+ * This callback is called when the game ends.
+ * 
+ * @callback endCallback
+ * @param {number} end - The end timestamp.
+ * @param {array} mines - Array of {x, y}-shaped mines.
  */

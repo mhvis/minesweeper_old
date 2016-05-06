@@ -17,7 +17,9 @@ var MinesweeperNewForm = React.createClass({
     this.setState({height: event.target.value});
   },
   mineCountChange: function(event) {
-    this.setState({mineCount: event.target.value});
+    if (event.target.value <= this.state.width * this.state.height) {
+      this.setState({mineCount: event.target.value});
+    }
   },
   newGame: function(event) {
     MinesweeperStore.newGame(this.state.width, this.state.height,
@@ -26,22 +28,28 @@ var MinesweeperNewForm = React.createClass({
   presetHard: function(event) {
     MinesweeperStore.newGame(16, 30, 99);
   },
+  select: function(event) {
+    event.target.select();
+  },
   render: function() {
+    var width = {width: 40, margin: 2};
     return (
       <div>
-        <TextField value={this.state.width} onChange={this.widthChange} />
-        <TextField value={this.state.height} onChange={this.heightChange} />
+        <TextField value={this.state.width} onChange={this.widthChange} style={width} onFocus={this.select} />
+        <span> x </span>
+        <TextField value={this.state.height} onChange={this.heightChange} style={width} onFocus={this.select} />
+        <span>, </span>
         <TextField value={this.state.mineCount}
-        onChange={this.mineCountChange} />
+        onChange={this.mineCountChange} style={width} onFocus={this.select}/>
         <RaisedButton primary={true} onClick={this.newGame}>
           New game
         </RaisedButton>
-        <br />
-        <span>Presets:</span>
+        <span> Presets: </span>
         <RaisedButton onClick={this.presetHard}>Hard</RaisedButton>
       </div>
     );
   }
 });
+
 
 export default MinesweeperNewForm;

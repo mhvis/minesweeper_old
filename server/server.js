@@ -18,13 +18,11 @@ var MinesweeperBoard = require('./minesweeperboard');
 var boardIo = io.of('/board');
 
 function boardUpdateCb(x, y, value) {
-    if (board.end) {
-        boardIo.emit('game', getGame());
-    } else {
-        boardIo.emit('update', {x: x, y: y, value: value});
-    }
-};
-
+    boardIo.emit('update', {x: x, y: y, value: value});
+}
+function boardEndCb(end, mines) {
+    boardIo.emit('end', {end: end, mines: mines});
+}
 function getGame() {
     return {
         grid: board.grid,
@@ -35,19 +33,31 @@ function getGame() {
     };
 }
 
-var board = new MinesweeperBoard(8, 10, 10, boardUpdateCb);
+var board = new MinesweeperBoard(8, 10, 10, boardUpdateCb, boardEndCb);
 
 boardIo.on('connection', function(socket) {
     socket.emit('game', getGame());
     socket.on('mark', function(loc) {
-        board.mark(loc.x, loc.y);
+        try {
+            board.mark(loc.x, loc.y);
+        } catch (e) {
+            console.log(e.toString());
+        }
     });
     socket.on('expose', function(loc) {
-        board.expose(loc.x, loc.y);
+        try {
+            board.expose(loc.x, loc.y);
+        } catch (e) {
+            console.log(e.toString());
+        }
     });
     socket.on('new', function(data) {
-        board = new MinesweeperBoard(data.width, data.height, data.mineCount,
-            boardUpdateCb);
-        boardIo.emit('game', getGame());
+        try {
+            board = new MinesweeperBoard(data.width, data.height, data.mineCount,
+                boardUpdateCb, boardEndCb);
+            boardIo.emit('game', getGame());
+        } catch (e) {
+            console.log(e.toString());
+        }
     });
 });

@@ -50,10 +50,12 @@ var Minesweeper = React.createClass({
       mood = 'happy';
     }
     return (
-      <div>
-        <Counter mineCount={this.props.mineCount} markCount={markCount} />
-        <Smiley mood={mood}/>
-        <Timer start={this.props.start} end={this.props.end} />
+      <div className="minesweeper">
+        <div className="header">
+          <Counter mineCount={this.props.mineCount} markCount={markCount} />
+          <Smiley mood={mood}/>
+          <Timer start={this.props.start} end={this.props.end} />
+        </div>
         <Grid grid={this.props.grid} mines={this.props.mines} />
       </div>
     );
@@ -91,11 +93,11 @@ var Grid = React.createClass({
     var rows = this.props.grid.map(function(row, y) {
       var cells = row.map(function(value, x) {
         var mine = (mineGrid) ? mineGrid[y][x] : false;
-        return <Cell x={x} y={y} mine={mine}>{value}</Cell>;
+        return <Cell x={x} y={y} mine={mine} key={x + ',' + y}>{value}</Cell>;
       });
-      return <div className="row">{cells}</div>;
+      return <div className="row" key={y}>{cells}</div>;
     });
-    return <div>{rows}</div>;
+    return <div className="grid">{rows}</div>;
   }
 });
 
@@ -110,10 +112,12 @@ var Cell = React.createClass({
       '7', '8', 'm', 'M']).isRequired,
     mine: React.PropTypes.bool
   },
+  /*
   shouldComponentUpdate: function(nextProps, nextState) {
     return this.props.children != nextProps.children || this.props.mine !=
       nextProps.mine;
   },
+  */
   _expose: function(event) {
     if (this.props.children == ' ') {
       MinesweeperStore.expose(this.props.x, this.props.y);
@@ -126,14 +130,27 @@ var Cell = React.createClass({
     }
   },
   render: function() {
-    var val = this.props.mine ? 'M' : this.props.children;
-    if (val == ' ') {
-      val = 'X';
-    } else if (val == '0') {
-      val = ' ';
+    var cls = 'cell';
+    var val = '';
+    if (this.props.children == ' ' || this.props.children == 'm') {
+      cls += ' cell-hidden';
+      if (this.props.children == 'm') {
+        cls += ' cell-marked';
+        val = 'M';
+      }
+    } else {
+      cls += ' cell-exposed';
+      if (this.props.children != '0' && this.props.children != 'M') {
+        cls += ' cell-' + this.props.children;
+        val = this.props.children;
+      }
+    }
+    if (this.props.mine) {
+      cls += ' cell-mine';
+      val = '*';
     }
     return (
-      <div className="cell" onClick={this._expose} onContextMenu={this._mark}>
+      <div className={cls} onClick={this._expose} onContextMenu={this._mark}>
         {val}
       </div>
     );
@@ -149,7 +166,9 @@ var Counter = React.createClass({
     markCount: React.PropTypes.number.isRequired
   },
   render: function() {
-    return <div>{this.props.mineCount - this.props.markCount}</div>;
+    return <div className='header-field'>
+      {this.props.mineCount - this.props.markCount}
+    </div>;
   }
 });
 
@@ -165,7 +184,7 @@ var Smiley = React.createClass({
   },
   render: function() {
     //return <img src={this.props.mood + '.svg'} />;
-    return <div>{this.props.mood}</div>;
+    return <div className='header-field header-smiley'>{this.props.mood}</div>;
   }
 });
 
@@ -193,7 +212,7 @@ var Timer = React.createClass({
     return (this.props.end || Math.round(Date.now() / 1000)) - this.props.start;
   },
   render: function() {
-    return <div>{this.state.elapsed}</div>;
+    return <div className='header-field'>{this.state.elapsed}</div>;
   }
 });
 
