@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import Layout from './layout';
+import MinesweeperApp from './components/MinesweeperApp.react';
 
 // Needed for onTouchTap
 // Check this repo:
@@ -10,13 +10,9 @@ import Layout from './layout';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();
 
-const App = () => (
-  <MuiThemeProvider muiTheme={getMuiTheme()}>
-    <Layout />
-  </MuiThemeProvider>
-);
-
 ReactDOM.render(
-  <App />,
+  <MuiThemeProvider muiTheme={getMuiTheme()}>
+    <MinesweeperApp />
+  </MuiThemeProvider>,
   document.getElementById('app')
 );

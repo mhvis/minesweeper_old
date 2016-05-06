@@ -2,116 +2,52 @@ var express = require('express');
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-var cookieSession = require('cookie-session');
 
-var server_port = process.env.OPENSHIFT_NODEJS_PORT || process.env.PORT || 8080;
-var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || process.env.IP ||
-  '127.0.0.1';
+var server_port = process.env.OPENSHIFT_NODEJS_PORT || 8080;
+var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
 
 server.listen(server_port, server_ip_address, function () {
-  console.log("Listening on " + server_ip_address + ", server port " +
-    server_port);
-});
-
-app.use(cookieSession({
-  name: 'session',
-  keys: ['ankieisawesome', 'dicewaretodo']
-}));
-
-app.get('/views', function (req, res, next) {
-  // Update views
-  req.session.views = (req.session.views || 0) + 1;
-
-  // Write response
-  res.send(req.session.views + ' views');
+    console.log("Listening on " + server_ip_address + ", server port " +
+        server_port);
 });
 
 app.use(express.static('public'));
 
-var BoardController = require('./boardcontroller');
-var boards = {};
-var boardNextId = 0;
+var MinesweeperBoard = require('./minesweeperboard');
+
 var boardIo = io.of('/board');
 
-/**
- * Socket requests.
- */
-boardIo.on('connection', function (socket) {
-
-  /**
-   * get: id
-   * Request for one or more boards using the id parameter which can be one of:
-   * - a board id: to get a specific board.
-   * - '*': to get all ongoing boards.
-   * - something else: to get no boards (unsubscribe from past boards).
-   * 
-   * The server response will be with the name 'boards' and the data is an
-   * object which has the board ids as keys and the board data as value.
-   * 
-   * For all requested boards you will later receive updates via the
-   * 'update' event (data: {id, change}). All past subscriptions to former
-   * boards that were set before this call are removed.
-   */
-  socket.on('get', function (id) {
-    var boardArray = {};
-    
-    // Leave from all current rooms, TODO!
-    /*
-    var rooms = io.sockets.manager.roomClients[socket.id];
-    for (var room in rooms) {
-      socket.leave(room);
+function boardUpdateCb(x, y, value) {
+    if (board.end) {
+        boardIo.emit('game', getGame());
+    } else {
+        boardIo.emit('update', {x: x, y: y, value: value});
     }
-    */
+};
 
-    if (id === '*') {
-      for (var id in boards) {
-        if (boards.hasOwnProperty(id)) {
-          boardArray[id] = boards[id].get();
-          socket.join(id); // Subscribe for future updates.
-        }
-      }
-    } else if (boards.hasOwnProperty(id)) {
-      boardArray[id] = boards[id].get();
-      socket.join(id);
-    }
-    socket.emit('boards', boardArray);
-  });
+function getGame() {
+    return {
+        grid: board.grid,
+        mineCount: board.mineCount,
+        start: board.start,
+        end: board.end,
+        mines: board.mines
+    };
+}
 
-  /**
-   * update: {id, change}
-   * Updates a board.
-   */
-  socket.on('update', function (update) {
-    if (boards.hasOwnProperty(update.id)) {
-      boards[update.id].update(update.change);
-    }
-  });
+var board = new MinesweeperBoard(8, 10, 10, boardUpdateCb);
 
-  /**
-   * add: {width, height, [mineCount]}
-   * Creates a new board with given width and height. The server response with
-   * an event with the name 'added' and the board id as the value.
-   */
-  socket.on('add', function (data) {
-    if (!data.width || !data.height) {
-      socket.emit('added', -1);
-      return;
-    }
-    var mineCount = (data.mineCount) ? data.mineCount : data.width * data.height
-      * 0.1;
-    var boardId = boardNextId++;
-    var board = new BoardController(data.width, data.height, mineCount,
-      function (change) {
-        boardIo.to(boardId).emit('update', {id: boardId, change: change});
-      }
-    );
-    boards[boardId] = board;
-    socket.emit('added', boardId);
-  });
-  
-  // Temporary
-  socket.on('clear', function() {
-    boards = {};
-    boardNextId = 0;
-  });
+boardIo.on('connection', function(socket) {
+    socket.emit('game', getGame());
+    socket.on('mark', function(loc) {
+        board.mark(loc.x, loc.y);
+    });
+    socket.on('expose', function(loc) {
+        board.expose(loc.x, loc.y);
+    });
+    socket.on('new', function(data) {
+        board = new MinesweeperBoard(data.width, data.height, data.mineCount,
+            boardUpdateCb);
+        boardIo.emit('game', getGame());
+    });
 });
