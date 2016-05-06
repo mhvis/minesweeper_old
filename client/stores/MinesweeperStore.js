@@ -20,8 +20,10 @@ socket.on('game', function(newGame) {
     notifyListeners();
 });
 
-socket.on('update', function(data) {
-    game.grid[data.y][data.x] = data.value;
+socket.on('updates', function(updates) {
+    updates.forEach(function(update) {
+        game.grid[update.y][update.x] = update.value;
+    });
     notifyListeners();
 });
 socket.on('end', function(data) {

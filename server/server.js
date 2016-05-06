@@ -3,9 +3,6 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
-//var server_port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080;
-//var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
-
 server.listen(process.env.PORT || '8080', '0.0.0.0', function () {
   console.log('App listening at http://%s:%s', server.address().address,
     server.address().port);
@@ -18,8 +15,8 @@ var MinesweeperBoard = require('./minesweeperboard');
 
 var boardIo = io.of('/board');
 
-function boardUpdateCb(x, y, value) {
-    boardIo.emit('update', {x: x, y: y, value: value});
+function boardUpdatesCb(updates) {
+    boardIo.emit('updates', updates);
 }
 function boardEndCb(end, mines) {
     boardIo.emit('end', {end: end, mines: mines});
@@ -34,31 +31,31 @@ function getGame() {
     };
 }
 
-var board = new MinesweeperBoard(8, 10, 10, boardUpdateCb, boardEndCb);
+var board = new MinesweeperBoard(8, 10, 10, boardUpdatesCb, boardEndCb);
 
 boardIo.on('connection', function(socket) {
-    socket.emit('game', getGame());
-    socket.on('mark', function(loc) {
-        try {
-            board.mark(loc.x, loc.y);
-        } catch (e) {
-            console.log(e.toString());
-        }
-    });
-    socket.on('expose', function(loc) {
-        try {
-            board.expose(loc.x, loc.y);
-        } catch (e) {
-            console.log(e.toString());
-        }
-    });
-    socket.on('new', function(data) {
-        try {
-            board = new MinesweeperBoard(data.width, data.height, data.mineCount,
-                boardUpdateCb, boardEndCb);
-            boardIo.emit('game', getGame());
-        } catch (e) {
-            console.log(e.toString());
-        }
-    });
+  socket.emit('game', getGame());
+  socket.on('mark', function(loc) {
+    try {
+      board.mark(loc.x, loc.y);
+    } catch (e) {
+      console.log(e.toString());
+    }
+  });
+  socket.on('expose', function(loc) {
+    try {
+      board.expose(loc.x, loc.y);
+    } catch (e) {
+      console.log(e.toString());
+    }
+  });
+  socket.on('new', function(data) {
+    try {
+      board = new MinesweeperBoard(data.width, data.height, data.mineCount,
+        boardUpdatesCb, boardEndCb);
+      boardIo.emit('game', getGame());
+    } catch (e) {
+      console.log(e.toString());
+    }
+  });
 });

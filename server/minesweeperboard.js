@@ -191,29 +191,49 @@ module.exports = function(width, height, mineCount, updateCb, endCb) {
      * @param {number} y - The y-coordinate.
      */
     this.expose = function(x, y) {
-        if (this.grid[y][x] != ' ') {
+        var grid = this.grid;
+        if (grid[y][x] != ' ') {
             throw new Error("Tile is already exposed");
         }
         if (this.end) {
             throw new Error("Game has ended");
         }
-        this.grid[y][x] = exposedGrid[y][x];
+        grid[y][x] = exposedGrid[y][x];
         exposedRemaining--;
-        updateCb(x, y, this.grid[y][x]); // Callback.
-        if (this.grid[y][x] == '0') {
-            var that = this;
-            forEachNeighbor(x, y, width, height, function(x2, y2) {
-                if (that.grid[y2][x2] == ' ') {
-                    // Expose recursively.
-                    that.expose(x2, y2);
-                }
-            });
-        }
-        if (this.grid[y][x] == 'M' || exposedRemaining === 0) {
-            // End game when a mine exploded or all tiles are exposed.
+        if (grid[y][x] == 'M') {
+            // End game when a mine exploded
             this.end = Math.round(Date.now() / 1000);
             this.mines = mines;
+            updateCb([{x: x, y: y, value: 'M'}]);
             endCb(this.end, this.mines);
+        } else {
+            var updates = [{x: x, y: y, value: grid[y][x]}];
+            var queue = [];
+            if (grid[y][x] == '0') {
+                queue.push({x: x, y: y});
+            }
+            // BFS for all empty tiles
+            while (queue.length > 0) {
+                var i = queue.splice(0, 1)[0];
+                forEachNeighbor(i.x, i.y, width, height, function(x2, y2) {
+                    if (grid[y2][x2] == ' ') {
+                        grid[y2][x2] = exposedGrid[y2][x2];
+                        exposedRemaining--;
+                        updates.push({x: x2, y: y2, value: grid[y2][x2]});
+                        if (grid[y2][x2] == '0') {
+                            queue.push({x: x2, y: y2});
+                        }
+                    }
+                });
+            }
+            // Update callback
+            updateCb(updates);
+            if (exposedRemaining === 0) {
+                // End game when all tiles are exposed
+                this.end = Math.round(Date.now() / 1000);
+                this.mines = mines;
+                endCb(this.end, this.mines);
+            }
         }
     };
 };
@@ -222,9 +242,7 @@ module.exports = function(width, height, mineCount, updateCb, endCb) {
  * This callback is called when the board state changes.
  * 
  * @callback updateCallback
- * @param {number} x - The x-coordinate.
- * @param {number} y - The y-coordinate.
- * @param {string} value - The new value.
+ * @param {array} updates - An array with {x, y, value}-shaped updates.
  */
  
 /**
