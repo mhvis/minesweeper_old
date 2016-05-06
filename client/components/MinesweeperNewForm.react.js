@@ -25,8 +25,14 @@ var MinesweeperNewForm = React.createClass({
     MinesweeperStore.newGame(this.state.width, this.state.height,
     this.state.mineCount);
   },
+  presetEasy: function(event) {
+    MinesweeperStore.newGame(8, 8, 10);
+  },
+  presetMedium: function(event) {
+    MinesweeperStore.newGame(16, 16, 40);
+  },
   presetHard: function(event) {
-    MinesweeperStore.newGame(16, 30, 99);
+    MinesweeperStore.newGame(30, 16, 99);
   },
   select: function(event) {
     event.target.select();
@@ -45,6 +51,10 @@ var MinesweeperNewForm = React.createClass({
           New game
         </RaisedButton>
         <span> Presets: </span>
+        <RaisedButton onClick={this.presetEasy}>Easy</RaisedButton>
+        <span> </span>
+        <RaisedButton onClick={this.presetMedium}>Medium</RaisedButton>
+        <span> </span>
         <RaisedButton onClick={this.presetHard}>Hard</RaisedButton>
       </div>
     );
