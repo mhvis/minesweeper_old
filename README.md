@@ -6,8 +6,8 @@ To start the application, run the following commands:
 
 ```
 npm install
+npm run build
 npm start
 ```
 
-Other available commands are: `npm run server`, `npm run build` and `npm run
-watch`.
+Other available commands are: `npm run watch`.
