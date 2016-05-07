@@ -1,5 +1,18 @@
 /**
  * Hybrid store/actor/back-end communicator.
+ *
+ * Game model:
+ * game: {
+ *   grid: [
+ *     [' ', ' ', '0', '1', 'm', ...], // A row
+ *     [' ', ...], // Next row
+ *     ...
+ *   ]
+ *   mineCount: 10,
+ *   start: 123456789, // Game start moment
+ *   end: 123456790, // Game end moment, false when game is still ongoing
+ *   mines: [{x: 2, y: 4}, ...] // Mines array, false or empty when not ended
+ * }
  */
 
 import io from 'socket.io-client';

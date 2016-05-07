@@ -181,7 +181,7 @@ module.exports = function(width, height, mineCount, updateCb, endCb) {
         } else {
             this.grid[y][x] = ' ';
         }
-        updateCb(x, y, this.grid[y][x]); // Callback.
+        updateCb([{x: x, y: y, value: this.grid[y][x]}]); // Callback.
     };
     
     /**
