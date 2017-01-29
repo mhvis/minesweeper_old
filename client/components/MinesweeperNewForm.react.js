@@ -47,7 +47,7 @@ var MinesweeperNewForm = React.createClass({
         <span>, </span>
         <TextField value={this.state.mineCount}
         onChange={this.mineCountChange} style={width} onFocus={this.select}/>
-        <RaisedButton primary={true} onClick={this.newGame}>
+        <RaisedButton onClick={this.newGame}>
           New game
         </RaisedButton>
         <span> Presets: </span>
