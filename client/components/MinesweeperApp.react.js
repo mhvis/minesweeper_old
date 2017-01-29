@@ -1,5 +1,4 @@
 import React from 'react';
-import AppBar from 'material-ui/AppBar';
 import RaisedButton from 'material-ui/RaisedButton';
 import Minesweeper from './Minesweeper.react';
 import MinesweeperNewForm from './MinesweeperNewForm.react';
@@ -25,12 +24,12 @@ var MinesweeperApp = React.createClass({
     var center = {textAlign: 'center'};
     return (
       <div>
-        <AppBar />
         <div style={center}>
           <MinesweeperNewForm />
           <Minesweeper grid={this.state.grid} mineCount={this.state.mineCount}
             start={this.state.start} end={this.state.end} mines={this.state.mines}
             />
+          <a href='https://github.com/mhvis/minesweeper'>GitHub link</a>
         </div>
       </div>
     );
