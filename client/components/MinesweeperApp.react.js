@@ -29,7 +29,6 @@ var MinesweeperApp = React.createClass({
           <Minesweeper grid={this.state.grid} mineCount={this.state.mineCount}
             start={this.state.start} end={this.state.end} mines={this.state.mines}
             />
-          <p><a href='https://github.com/mhvis/minesweeper'>GitHub link</a></p>
         </div>
       </div>
     );
